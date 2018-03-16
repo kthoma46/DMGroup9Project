@@ -1,4 +1,4 @@
-%filePath = "D:\Kevin Thomas\ASU\2nd Semester\DM\Project\CSE572_A2_data\DM12";
+%filePath = "D:\Kevin Thomas\ASU\2nd Semester\DM\Project\InputData";
 prompt = "Enter Filepath\n";
 filePath = input(char(prompt), 's');
 outputFilePath = "Task1Output";
@@ -23,20 +23,28 @@ subDirFilesStringArray = string(subDirFilesCellArray);
 patternArray = ["about", "and", "can", "cop", "deaf", "decide", "father", "go out", "find", "hearing"];
 %For each pattern
 for pattern = patternArray
+    disp("Pattern: " + pattern);
     %Fetching relevant files
     TF = contains(subDirFilesStringArray, pattern, 'IgnoreCase', true);
     files = subDirFilesStringArray(TF);
     
-    gestureTable = table;
-    %For each file corresponding to the pattern
+    gestureTable = cell2table({});
+    finalTable = cell2table({});
     for K = 1:length(files)
         %Read table from file
+        disp("FileName: " + files{K});
         table = readtable(files{K});
     
         %Transposing the table
         first34rows = table(1:end, 1:34);
         tableArray = table2array(first34rows);
         transposedTable = array2table(tableArray.');
+        
+        noOfColumnTransposedTable = size(transposedTable, 2);
+        if noOfColumnTransposedTable > 50
+            disp(noOfColumnTransposedTable + ">50");
+            continue;
+        end
         
         %Adding Sensor column
         sensorColumn = cell2table(cellstr(['ALX  ';'ALY  ';'ALZ  ';'ARX  ';'ARY  ';'ARZ  ';'EMG0L';'EMG1L';'EMG2L';'EMG3L';'EMG4L';'EMG5L';'EMG6L';'EMG7L';'EMG0R';'EMG1R';'EMG2R';'EMG3R';'EMG4R';'EMG5R';'EMG6R';'EMG7R';'GLX  ';'GLY  ';'GLZ  ';'GRX  ';'GRY  ';'GRZ  ';'ORL  ';'OPL  ';'OYL  ';'ORR  ';'OPR  ';'OYR  ']));
@@ -54,14 +62,13 @@ for pattern = patternArray
         %Adding column names to the table
         finalTable = [actionColumn sensorColumn transposedTable];
         headerCellArray = {'ActionCount', 'Sensor'};
-        noOfColumnTransposedTable = size(transposedTable, 2);
         for J = 1:noOfColumnTransposedTable
             headerCellArray{end + 1} = char("time" + num2str(J));
         end
         finalTable.Properties.VariableNames = headerCellArray;
         
         %Adding final table to main table
-        if K == 1   %if its the first iteration
+        if K==1 || isempty(gestureTable)
             gestureTable = finalTable;
         else
             noOfColumnsGestureTable = size(gestureTable, 2);
@@ -73,7 +80,8 @@ for pattern = patternArray
                 if noOfColumnsGestureTable < noOfColumnsFinalTable
                     diff = noOfColumnsFinalTable - noOfColumnsGestureTable;
                     noOfRowsGestureTable = size(gestureTable, 1);
-                    nanColumn = NaN(noOfRowsGestureTable, 1, 'double');
+                    %nanColumn = NaN(noOfRowsGestureTable, 1, 'double');
+                    nanColumn = zeros(noOfRowsGestureTable, 1);
                     nanColumnTable = array2table(nanColumn);
                     nanMatrix = repmat(nanColumnTable, 1, diff);
                     
@@ -90,7 +98,8 @@ for pattern = patternArray
                 else
                     diff = noOfColumnsGestureTable - noOfColumnsFinalTable;
                     noOfRowsFinalTable = size(finalTable, 1);
-                    nanColumn = NaN(noOfRowsFinalTable, 1, 'double');
+                    %nanColumn = NaN(noOfRowsFinalTable, 1, 'double');
+                    nanColumn = zeros(noOfRowsFinalTable, 1);
                     nanColumnTable = array2table(nanColumn);
                     nanMatrix = repmat(nanColumnTable, 1, diff);
                     
