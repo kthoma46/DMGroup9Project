@@ -9,7 +9,7 @@ label_array = [];
 for i=1:numel(gesture_list)
     file_name = strcat("Task1Output",'/',gesture_list(i),'.csv');
     cur_table = readtable(file_name,'ReadVariableNames',true);
-    gesture_name = array2table(repmat(cellstr(gesture_list(i)),size(cur_table,1),1));
+    gesture_name = array2table(repmat(i,size(cur_table,1),1));
     final_table = [final_table; [gesture_name cur_table(:, 1:48)]];
 end
 
