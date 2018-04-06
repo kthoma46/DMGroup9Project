@@ -2,11 +2,12 @@ prompt = "Enter the base directory folder = ";
 baseDirectory = input(char(prompt), 's');
 
 gestures = ["about", "and", "can", "cop", "deaf", "decide", "father", "go out", "find", "hearing"];
-groupFolders = ["DM01", "DM02", "DM04", "DM05", "DM11", "DM12"];
+groupFolders = ["DM01", "DM05", "DM11", "DM12"];
 csvData = ["Group Data" "Gesture" "Model" "Precision" "Recall" "F1"];
 for i = 1:numel(groupFolders)
     for j = 1:numel(gestures)
        pathOfFile = baseDirectory + "\" + groupFolders(i) + "\" + gestures(j) + ".csv";
+       disp(pathOfFile);
        fileContent = readtable(pathOfFile);
        featureMatrix = table2array(fileContent);
        
@@ -26,7 +27,7 @@ for i = 1:numel(groupFolders)
        precision = TP/(TP+FP);
        recall = TP/(TP+FN);
        F1 = 2 * recall * precision / (precision + recall);
-       newCsvData = [groupFolders(i) gestures(j) "Decision Tree" precision recall F1];
+       newCsvData = [groupFolders(i) gestures(j) "Decision Tree" num2str(precision) num2str(recall) num2str(F1)];
        csvData = [csvData; newCsvData];
        
        svm = fitcsvm(trainData, trainLabels, 'KernelFunction', 'polynomial', 'PolynomialOrder', 10);
@@ -38,7 +39,7 @@ for i = 1:numel(groupFolders)
        precision = TP/(TP+FP);
        recall = TP/(TP+FN);
        F1 = 2 * recall * precision / (precision + recall);
-       newCsvData = [groupFolders(i) gestures(j) "SVM" precision recall F1];
+       newCsvData = [groupFolders(i) gestures(j) "SVM" num2str(precision) num2str(recall) num2str(F1)];
        csvData = [csvData; newCsvData];
        
        neuralNet = feedforwardnet(15);
@@ -58,11 +59,10 @@ for i = 1:numel(groupFolders)
        precision = TP/(TP+FP);
        recall = TP/(TP+FN);
        F1 = 2 * recall * precision / (precision + recall);
-       newCsvData = [groupFolders(i) gestures(j) "Neural Network" precision recall F1];
+       newCsvData = [groupFolders(i) gestures(j) "Neural Network" num2str(precision) num2str(recall) num2str(F1)];
        csvData = [csvData; newCsvData];
     end
-    disp(csvData);
-    return;
 end
 
-csvwrite("Statistics.csv", csvData);
+table = array2table(csvData);
+writetable(table, "Statistics.csv");
